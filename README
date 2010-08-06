@@ -2,7 +2,10 @@ Need a dispenser here! Need a teleporter here! Need a sentry here! Need a source
 
 Buildin' a readme.
 
-Things you should get if you really want to get into the developement:
+NOTES
+I'm really going OpenSource because I hope that somebody will improve it (by sending patches to me). I won't release the whole database. I won't allow direct access to the server. So, you can fork it and send me patches (which I will apply, as long as they are working). The code has grown over time; while it is more or less tidy coded, some parts may are useless or complicated to understand. I'm sorry for that. I never imagined that this would go *this* far.
+
+REQUIREMENTS
 - Perl + knowledge of it
 - Apache 2
 - MySQL 5
@@ -10,3 +13,16 @@ Things you should get if you really want to get into the developement:
 - UNIX (or something that understands UNIX sockets)
 - git, obviously
 - Speaking German and knowing internet memes can help understanding some of the comments
+
+INSTALLATION
+1.) Rename EEConfigDefault.pm to EEConfig.pm and fill in all necessary fields.
+2.) Rename .keysdefault to .keys and insert a few real keys. I'd recommend hashes of something, doesn't matter.
+3.) Insert data.sql into the database.
+4.) ???
+5.) Profit.
+
+LICENSE
+Eana Eltu by Tobias Jaeggi (Tuiq, tuiq at clonk2c dot ch), Richard Littauer (Taronyu, richard@learnnavi.org) and others is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License ( http://creativecommons.org/licenses/by-nc-sa/3.0/ ).
+The full license text is available at http://creativecommons.org/licenses/by-nc-sa/3.0/legalcode .
+
+The only exception is util_dumpnavisql.pl, which is released under GPL 3 and uses parts of mwForum by Markus Wichitill.
