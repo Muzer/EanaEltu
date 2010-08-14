@@ -284,7 +284,7 @@ sub refreshMySQLDatabase {
 	my $dbh = $ref->{dbh};
 	
 	# First of all: Get all infixes.
-	my $isth = $dbh->prepare("SELECT * FROM dictWordMeta WHERE `type` = 'infix' && block = '2'");
+	my $isth = $dbh->prepare("SELECT * FROM dictWordMeta WHERE `type` = 'infixN' && block = '2'");
 	my $listh = $dbh->prepare('SELECT * FROM dictWordLoc WHERE id = ?');
 	
 	$isth->execute();
@@ -318,7 +318,7 @@ sub refreshMySQLDatabase {
 		}
 	}
 	
-	my $eisth = $dbh->prepare("SELECT * FROM dictWordMeta WHERE `type` = 'infixcw' && block = '2'");
+	my $eisth = $dbh->prepare("SELECT * FROM dictWordMeta WHERE `type` = 'infixcwN' && block = '2'");
 	my $leisth = $dbh->prepare('SELECT * FROM dictWordLoc WHERE id = ?');
 	
 	$eisth->execute();
@@ -367,28 +367,28 @@ sub refreshMySQLDatabase {
 		
 		next if $af->{afx} eq 'si';
 		
-		if ($r->{type} eq 'alloffix') {
+		if ($r->{type} =~ /^alloffix/) {
 			$af->{sdesc} = $r->{arg9};
 			$af->{desc} = $r->{arg4};
 			while (my $lr = $lafsth->fetchrow_hashref()) {
 				$af->{"desc$lr->{lc}"} = $lr->{arg4};
 			}
 		}
-		elsif ($r->{type} eq 'affix') {
+		elsif ($r->{type} =~ /^affix/) {
 			$af->{desc} = $r->{arg3};
 			$af->{sdesc} = $r->{arg8};
 			while (my $lr = $lafsth->fetchrow_hashref()) {
 				$af->{"desc$lr->{lc}"} = $lr->{arg3};
 			}
 		}
-		elsif ($r->{type} eq 'marker') {
+		elsif ($r->{type} =~ /^marker/) {
 			$af->{desc} = $r->{arg3};
 			$af->{sdesc} = $r->{arg7};
 			while (my $lr = $lafsth->fetchrow_hashref()) {
 				$af->{"desc$lr->{lc}"} = $lr->{arg3};
 			}
 		}
-		elsif ($r->{type} eq 'derivingaffix') {
+		elsif ($r->{type} =~ /^derivingaffix/) {
 			$af->{desc} = $r->{arg3};
 			$af->{desc} =~ s/^\([0-9]+\) //o;
 			$af->{sdesc} = $r->{arg7};
