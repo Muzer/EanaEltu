@@ -26,6 +26,15 @@ use Getopt::Std ();
 use MwfMain;
 
 #------------------------------------------------------------------------------
+# Get arguments
+my %opts = ();
+Getopt::Std::getopts('f:', \%opts);
+my $forumId = $opts{f};
+
+# Init
+my ($m, $cfg, $lng) = MwfMain->newShell(forumId => $forumId);
+
+#------------------------------------------------------------------------------
 # Really, this is just a... redirection
 
 system "$^X cron_jobs_navi$m->{ext}" if -f "cron_jobs_navi$m->{ext}";
