@@ -24,6 +24,7 @@ no warnings qw(uninitialized once);
 # Imports
 use MwfMain;
 use Data::Dumper;
+use utf8;
 
 # Init
 my ($m, $cfg, $lng) = MwfMain->newShell();
@@ -93,9 +94,11 @@ print $FH <<EOD;
 
 CREATE TABLE IF NOT EXISTS `dictWordLoc`(`id` int(11) NOT NULL,`arg1` text,`arg2` text,`arg3` text,`arg4` text,`arg5` text,`arg6` text,`arg7` text,`arg8` text,`arg9` text,`arg10` text,`odd` text,`lc` char(5) character set latin1 NOT NULL,`editTime` int(11) NOT NULL,UNIQUE KEY `id` (`id`,`lc`)) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 CREATE TABLE IF NOT EXISTS `dictWordMeta` (`id` int(11) NOT NULL auto_increment,`type` char(50) NOT NULL,`arg1` text NOT NULL,`arg2` text NOT NULL,`arg3` text NOT NULL,`arg4` text NOT NULL,`arg5` text NOT NULL,`arg6` text NOT NULL,`arg7` text NOT NULL,`arg8` text NOT NULL,`arg9` text NOT NULL,`arg10` text NOT NULL,`odd` text NOT NULL,`block` tinyint(4) NOT NULL,`editTime` int(11) NOT NULL,PRIMARY KEY  (`id`)) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+CREATE TABLE IF NOT EXISTS `dictLanguages` (`lc` char(5) character set utf8 NOT NULL,`engName` varchar(20) character set utf8 NOT NULL,`nativeName` varchar(20) character set utf8 NOT NULL,`active` tinyint(1) NOT NULL,PRIMARY KEY  (`lc`));
 
 TRUNCATE TABLE `dictWordMeta`; 
 TRUNCATE TABLE `dictWordLoc`;
+TRUNCATE TABLE `dictLanguages`;
 
 EOD
 
@@ -103,7 +106,7 @@ for my $word (@metaWords) {
 	print $FH "INSERT INTO `dictWordMeta` SET ";
 	# Magic! Voodoo! Call it what you want.
 	print $FH join(',', map { "`$_`=" . $m->{dbh}->quote($word->{$_}) } keys %$word);
-	print $FH ";";
+	print $FH ";\n";
 }
 
 # Ctrl-D
@@ -111,9 +114,25 @@ for my $word (@localizedWords) {
 	print $FH "INSERT INTO `dictWordLoc` SET ";
 	# Magic! Voodoo! Call it what you want.
 	print $FH join(',', map { "`$_`=" . $m->{dbh}->quote($word->{$_}) } keys %$word);
-	print $FH ";";
+	print $FH ";\n";
 }
 
+print $FH <<EOD;
+INSERT INTO `dictLanguages` (`lc`, `engName`, `nativeName`, `active`) VALUES
+('de', 'German', 'Deutsch', 1),
+('hu', 'Hungarian', 'Magyar', 1),
+('est', 'Estonian', 'Eesti', 1),
+('ptbr', 'Portuguese', 'Portoguês', 1),
+('es', 'Spanish', 'Español', 0),
+('fi', 'Finnish', 'Suomi', 0),
+('zhcn', 'Simplified Chinese', '简体字', 0),
+('nav', 'Na''vi', 'Na''vi', 0),
+('nl', 'Dutch', 'Nederlands', 0),
+('pl', 'Polish', 'Polski', 0),
+('ru', 'Russian', 'Русский', 0),
+('sv', 'Swedish', 'Svenska', 1);
+EOD
+;
 close $FH;
-print "Done.\n";
 $m->finish();
+print "Done.\n";

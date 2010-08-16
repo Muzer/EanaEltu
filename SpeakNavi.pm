@@ -34,19 +34,8 @@ our %INFIXES = ();
 our %PREAFFIXES = ();
 our %POSTAFFIXES = ();
 
-# These languages are loaded automagically. They are thought to be "up to date" and "stable".
-our %LANGUAGES = (
-	eng => 'English (eng)',
-	hu => 'Hungarian (hu)',
-	pl => undef,
-	zhcn => undef,
-	#~ nl => 'Dutch (nl)',
-	de => 'German (de)',
-	ptbr => 'Brazilian Portuguese (ptbr)',
-	#~ ru => 'Russian (ru)',
-	est => 'Estonian (est)',
-	sv => 'Swedish (sv)',
-);
+# These languages are available later, loaded from the database.
+our %LANGUAGES = ();
 
 # Number magic - hardcoding is fun.
 our %NUMBERS = (
@@ -283,6 +272,14 @@ sub refreshMySQLDatabase {
 	
 	my $dbh = $ref->{dbh};
 	
+	# Very first of everything: Get languages.
+	my $lsth = $dbh->prepare('SELECT * FROM dictLanguages');
+	$lsth->execute();
+	
+	while (my $r = $lsth->fetchrow_hashref()) {
+		$LANGUAGES{$r->{lc}} = {eng => $r->{engName}, nat => $r->{nativeName}, active => $r->{active}};
+	}
+	
 	# First of all: Get all infixes.
 	my $isth = $dbh->prepare("SELECT * FROM dictWordMeta WHERE `type` = 'infixN' && block = '2'");
 	my $listh = $dbh->prepare('SELECT * FROM dictWordLoc WHERE id = ?');
@@ -454,7 +451,7 @@ sub refreshMySQLDatabase {
 	my $sth = $dbh->prepare('SELECT * FROM dictWordMeta WHERE block = 0 || block = 9 || block = 7 || block = 8 || id = 294 || id = 511 || id = 556 ORDER BY id ASC'); # Nur "Standardwörter".
 	$sth->execute();
 	
-	my $ssth = $dbh->prepare('SELECT * FROM dictWordLoc WHERE id = ? && lc IN (' . join(',', map { '\'' . $_ . '\'' } grep { defined $LANGUAGES{$_} } keys %LANGUAGES) . ')');
+	my $ssth = $dbh->prepare('SELECT * FROM dictWordLoc WHERE id = ? && lc IN (' . join(',', map { '\'' . $_ . '\'' } grep { $LANGUAGES{$_}{active} } keys %LANGUAGES) . ')');
 	my $asth = $dbh->prepare("SELECT * FROM dictWordLoc WHERE id = ? && lc = 'nav'");
 	
 	my ($r, $s);
@@ -984,7 +981,7 @@ sub advTranslateSentence {
 			my $num = naviToNum($word);
 			# G...rah?
 			my $fakeword = {'nav' => $word, 'rnav' => $rword, 'eng' => $num, 'eeng' => $num, 'typeeng' => 'num.', 'type' => 'num.'};
-			for my $lc (keys %LANGUAGES) {
+			for my $lc (grep { $LANGUAGES{$_}{active} } keys %LANGUAGES) {
 				$fakeword->{$lc} = $num;
 				$fakeword->{"e$lc"} = $num;
 			}

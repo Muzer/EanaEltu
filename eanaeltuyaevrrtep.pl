@@ -29,14 +29,8 @@ my $DATABASE = $EEConfig::cfg->{databaseName};
 my $USER = $EEConfig::cfg->{databaseUser};
 my $PASSWORD = $EEConfig::cfg->{databasePassword};
 
-# languages are load at compiletime; adding languages requires restart
-my @LANGUAGES = grep { defined $SpeakNavi::LANGUAGES{$_} } keys %SpeakNavi::LANGUAGES;
-push @LANGUAGES, 'nav';
-
+my @LANGUAGES;
 my %LCS;
-for (keys %SpeakNavi::LANGUAGES) {
-	$LCS{$_} = $SpeakNavi::LANGUAGES{$_} if defined $SpeakNavi::LANGUAGES{$_};
-}
 
 sub logSth {
 	my ($text) = @_;
@@ -88,6 +82,13 @@ sub initDatabase {
 	$lookupSth = $ydb->{dbh}->prepare('INSERT INTO wordLookup (text, lc, time) VALUES (?, ?, ?)');
 	$translateSth = $ydb->{dbh}->prepare('INSERT INTO naviSentences (text, time) VALUES (?, ?)');
 	logSth("Prepared.");
+	logSth("Setting languages...");
+	@LANGUAGES = grep { $SpeakNavi::LANGUAGES{$_}{active} } keys %SpeakNavi::LANGUAGES;
+	push @LANGUAGES, 'nav';
+	logSth("Supporting @LANGUAGES");
+	%LCS;
+	$LCS{$_} = $SpeakNavi::LANGUAGES{$_} for (@LANGUAGES);
+	logSth("Check: " . join(' ', keys %LCS));
 }
 
 initDatabase();
@@ -143,6 +144,7 @@ while ((my @readready = $select->can_read(scalar keys %connections ? 30 : undef)
 				my $data = from_json($msg);
 				my $req;
 				if (!exists $data->{request} || $data->{request} !~ /^(translate|lookup|num|peristent|lcs|refresh|getemall)$/) {
+					logSth("Invalid request field");
 					sendAnswer($fh, status => 'Failure', message => "Invalid request field ($data->{request})");
 					return 1;
 				} else {
@@ -150,11 +152,13 @@ while ((my @readready = $select->can_read(scalar keys %connections ? 30 : undef)
 				}
 	
 				if (!exists $data->{key} || !($data->{key} ~~ @KEYS)) {
+					logSth("Invalid key");
 					sendAnswer($fh, status => 'Failure', message => 'Invalid key');
 					return 1;
 				}
 		
 				if ($data->{request} ne 'peristent' && $data->{request} ne 'lcs' && $data->{request} ne 'refresh' && $data->{request} ne 'getemall' && (!exists $data->{data} || !$data->{data})) {
+					logSth("Invalid data");
 					sendAnswer($fh, status => 'Failure', message => 'Invalid data');
 					return 1;
 				}
@@ -171,11 +175,11 @@ while ((my @readready = $select->can_read(scalar keys %connections ? 30 : undef)
 				
 				# Translate?
 				elsif ($req eq 'translate') {
+					logSth("Translating");
 					utf8::decode($data->{data});
 					$translateSth->execute($data->{data}, time);
 					my @trans = grep { defined @{$_}[0] } $ydb->advTranslateSentence($data->{data});
 					my @rtrans;
-					print Dumper(\@trans);
 					for my $d (@trans) {
 						my %er = %{$d->[1]};
 						delete $er{vnav};
@@ -202,6 +206,7 @@ while ((my @readready = $select->can_read(scalar keys %connections ? 30 : undef)
 				}
 				# Lookup?
 				elsif ($req eq 'lookup') {
+					logSth("Looking up");
 					if (!exists $data->{langs} || !scalar @{$data->{langs}}) {
 						sendAnswer($fh, status => 'Failure', message => 'Invalid languages');
 						return 1;
@@ -246,11 +251,13 @@ while ((my @readready = $select->can_read(scalar keys %connections ? 30 : undef)
 				}
 				# Numz
 				elsif ($req eq 'num') {
+					logSth("Numerics");
 					sendAnswer($fh, status => 'Success', data => SpeakNavi::numToNavi($data->{data}));
 					return 1;
 				}
 				# Lcs
 				elsif ($req eq 'lcs') {
+					logSth("LCS");
 					sendAnswer($fh, status => 'Success', data => \%LCS);
 					# Allow more requests afterwards.
 					$close = 0;
