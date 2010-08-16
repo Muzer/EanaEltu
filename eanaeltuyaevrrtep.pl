@@ -86,8 +86,7 @@ sub initDatabase {
 	@LANGUAGES = grep { $SpeakNavi::LANGUAGES{$_}{active} } keys %SpeakNavi::LANGUAGES;
 	push @LANGUAGES, 'nav';
 	logSth("Supporting @LANGUAGES");
-	%LCS;
-	$LCS{$_} = $SpeakNavi::LANGUAGES{$_} for (@LANGUAGES);
+	%LCS = %SpeakNavi::LANGUAGES;
 	logSth("Check: " . join(' ', keys %LCS));
 }
 
