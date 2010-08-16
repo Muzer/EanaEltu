@@ -95,6 +95,7 @@ print $FH <<EOD;
 CREATE TABLE IF NOT EXISTS `dictWordLoc`(`id` int(11) NOT NULL,`arg1` text,`arg2` text,`arg3` text,`arg4` text,`arg5` text,`arg6` text,`arg7` text,`arg8` text,`arg9` text,`arg10` text,`odd` text,`lc` char(5) character set latin1 NOT NULL,`editTime` int(11) NOT NULL,UNIQUE KEY `id` (`id`,`lc`)) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 CREATE TABLE IF NOT EXISTS `dictWordMeta` (`id` int(11) NOT NULL auto_increment,`type` char(50) NOT NULL,`arg1` text NOT NULL,`arg2` text NOT NULL,`arg3` text NOT NULL,`arg4` text NOT NULL,`arg5` text NOT NULL,`arg6` text NOT NULL,`arg7` text NOT NULL,`arg8` text NOT NULL,`arg9` text NOT NULL,`arg10` text NOT NULL,`odd` text NOT NULL,`block` tinyint(4) NOT NULL,`editTime` int(11) NOT NULL,PRIMARY KEY  (`id`)) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 CREATE TABLE IF NOT EXISTS `dictLanguages` (`lc` char(5) character set utf8 NOT NULL,`engName` varchar(20) character set utf8 NOT NULL,`nativeName` varchar(20) character set utf8 NOT NULL,`active` tinyint(1) NOT NULL,PRIMARY KEY  (`lc`));
+CREATE TABLE IF NOT EXISTS `wordLookup` (`text` varchar(250) NOT NULL,`lc` char(100) NOT NULL,`time` int(11) NOT NULL);
 
 TRUNCATE TABLE `dictWordMeta`; 
 TRUNCATE TABLE `dictWordLoc`;
