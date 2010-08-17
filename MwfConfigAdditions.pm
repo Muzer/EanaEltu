@@ -13,6 +13,6 @@ $cfg->{EE}{tmpDir} = '/tmp/changeme';
 
 # EE Addon stuff
 $cfg->{EE}{addonBasename} = 'NaviDictionary';
-$cfg->{EE}{addons} = [qw(MwfPlgNaviTSV MwfPlgNaviJM)];
+$cfg->{EE}{addons} = [qw(MwfPlgNaviTSV MwfPlgNaviJM MwfPlgNaviSQL)];
 
 #-----------------------------------------------------------------------------

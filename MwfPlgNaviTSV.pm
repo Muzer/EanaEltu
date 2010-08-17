@@ -19,7 +19,7 @@
 package MwfPlgNaviTSV;
 use strict;
 use warnings;
-our $VERSION = "2.19.2";
+our $VERSION = "2.22.1";
 
 use Net::FTP;
 
@@ -32,7 +32,7 @@ sub create {
 	my @lcs = @{$params{languages}};
 	
 	# Clean up
-	`rm -f *.tsv`;
+	`rm -f $cfg->{EE}{addonBasename}/*.tsv`;
 	
 	# Open file handles to avoid iterating X times through @words
 	my %files = ();

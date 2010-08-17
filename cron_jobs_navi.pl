@@ -28,7 +28,7 @@ use Net::FTP;
 
 # Get arguments
 my %opts = ();
-Getopt::Std::getopts('dpf:', \%opts);
+Getopt::Std::getopts('f:', \%opts);
 my $forumId = $opts{f};
 
 # Init
