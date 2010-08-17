@@ -267,7 +267,7 @@ while ((my @readready = $select->can_read(scalar keys %connections ? 30 : undef)
 				elsif ($req eq 'refresh') {
 					logSth("Forced refreshing...");
 					# ASD
-					$ydb->refreshMySQLDatabase();
+					initDatabase();
 					sendAnswer($fh, status => 'Success');
 					logSth("Refreshed.");
 					$close = 0;
