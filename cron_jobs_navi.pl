@@ -43,7 +43,7 @@ if (!$yn->connect) {
 
 $yn->askRefresh;
 my $languages = $yn->askLanguages;
-my @languages = keys %$languages;
+my @languages = grep { $languages->{$_}{active} } keys %$languages;
 
 my $data = $yn->askAllData;
 if (!$data || $@ || $!) {
