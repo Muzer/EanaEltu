@@ -458,7 +458,7 @@ sub refreshMySQLDatabase {
 	my $idOffset = 0;
 	while ($r = $sth->fetchrow_hashref()) {
 		# Skip some.
-		next if $r->{type} !~ /^(?:word|loan|lenite|derives?|deriveall|note|cw|cww|cwww)$/ && $r->{id} != 447 && $r->{id} != 556;
+		next if $r->{type} !~ /^(?:word|loan|lenite|derives?|deriveall|note|cw|cww|cwww|liu)$/ && $r->{id} != 447 && $r->{id} != 556;
 		next if $r->{type} eq 'derivingaffix' && ($r->{arg1} ne 'si');
 		#~ for my $u (values %$r) { 
 			#~ utf8::encode($u) if defined $u;
