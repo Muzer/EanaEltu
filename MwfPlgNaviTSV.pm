@@ -38,7 +38,7 @@ sub create {
 	my %files = ();
 	for my $lc (@lcs) {
 		my $adding = $lc eq 'eng' ? '' : "_$lc";
-		open($files{$lc}, '>', "$cfg->{EE}{tmpDir}/$cfg->{EE}{addonBasename}$adding.tsv") or $m->error("Could not open file for $lc! ($! for $cfg->{EE}{tmpDir}/$cfg->{EE}{addonBasename}$adding.tsv)");
+		open($files{$lc}, '>::utf8', "$cfg->{EE}{tmpDir}/$cfg->{EE}{addonBasename}$adding.tsv") or $m->error("Could not open file for $lc! ($! for $cfg->{EE}{tmpDir}/$cfg->{EE}{addonBasename}$adding.tsv)");
 		$files{$lc} or $m->error("could not open file $lc");
 	}
 	
