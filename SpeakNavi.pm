@@ -488,6 +488,7 @@ sub refreshMySQLDatabase {
 		#~ $word{nav} =~ s/[*-=+]+$//o; # UNHEALTHY
 		$word{qnav} = quotemeta($word{nav});
 		$word{ipa} = tipaToPerl($r->{arg2});
+                $word{editTime} = $r->{editTime};
 		$word{type} = $type;
 		$word{eng} = texToPerl($r->{$lcField});
 		$word{eng} .= ' (' . texToPerl($r->{'arg5'}) . ')' if $r->{type} eq 'note';
