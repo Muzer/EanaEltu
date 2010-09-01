@@ -31,8 +31,8 @@ sub create {
   my @words = @{$params{words}};
   my @sorted = sort {$b->{editTime} <=> $a->{editTime}} @words;
   my $ftp = $params{ftp};
-  my @lcs = @{$params{languages}};
-  my @rssmessages = (1,10,25,50);
+  my $languages = $params{advLanguages};
+  my @rssmessages = qw(1 10 25 50);
 
 	# Clean up
   `rm -f $cfg->{EE}{tmpDir}/*.rss`;
@@ -61,31 +61,37 @@ EORSS
   }
 
 	# Iterate through @words
-        my $done = 0;
-        for my $word (@sorted) {
-          for my $number (@rssmessages){
-          if($done < $number){
-          print {$files{$number}} "<item>\n<title><![CDATA[$word->{nav}]]></title>\n<pubDate>$time{\"Day, dd Mon yyyy hh:mm:ss +0100\", $word->{editTime}}</pubDate>\n<description><![CDATA[Na'vi: $word->{nav}<br />IPA: $word->{ipa}<br />Part of speech: $word->{type}<br />";
-		# And now for each language...
-		for my $lc (@lcs) {
-			next if !$word->{$lc};
-         print {$files{$number}} "$lc: $word->{$lc}<br />";
+  my $done = 0;
+  for my $word (@sorted) {
+		for my $number (@rssmessages){
+			if($done < $number){
+				print {$files{$number}} 
+					"<item>\n",
+					"<title><![CDATA[$word->{nav}]]></title>\n",
+					"<pubDate>", $time{"Day, dd Mon yyyy hh:mm:ss +0100", $word->{editTime}}, "</pubDate>\n",
+					"<description><![CDATA[Na'vi: $word->{nav}<br />IPA: $word->{ipa}<br />Part of speech: $word->{type}<br />";
+				
+				# And now for each language...
+				for my $lc (grep { $languages->{$_}{active} } keys %$languages) {
+					next if !$word->{$lc};
+					print {$files{$number}} "$languages->{$lc}{nat}: $word->{$lc}<br />\n";
+				}
+				
+				# We show mercy to poor editors.
+				print {$files{$number}} "]]></description></item>\n";
+			}
 		}
-		# We show mercy to poor editors.
-		print {$files{$number}} "]]></description></item>\n";
-          }
-          }
-          $done++;
+		$done++;
 	}
-        for my $number (@rssmessages) {
-        print {$files{$number}} "</channel>\n</rss>\n";
-
-  close $files{$number};
+	
+	for my $number (@rssmessages) {
+		print {$files{$number}} "</channel>\n</rss>\n";
+		close $files{$number};
   
-	# FTP
-  $ftp->delete("NaviUpdates_$number.rss");
-  $ftp->put("$cfg->{EE}{tmpDir}/NaviUpdates_$number.rss", "NaviUpdates_$number.rss") or $m->error("could not ftp: $!");
-}
+		# FTP
+		$ftp->delete("NaviUpdates_$number.rss");
+		$ftp->put("$cfg->{EE}{tmpDir}/NaviUpdates_$number.rss", "NaviUpdates_$number.rss") or $m->error("could not ftp: $!");
+	}
 }
 
 #-----------------------------------------------------------------------------

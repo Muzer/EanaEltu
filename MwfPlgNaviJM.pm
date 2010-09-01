@@ -29,24 +29,24 @@ sub create {
 	my $cfg = $m->{cfg};
 	my @words = @{$params{words}};
 	my $ftp = $params{ftp};
-	my @lcs = @{$params{languages}};
+	my $languages = $params{advLanguages};
 	
 	# Clean up
-	`rm -f *.jm`;
+	`rm -f $cfg->{EE}{tmpDir}/*.jm`;
 	
 	# Open file handles to avoid iterating X times through @words
 	my %files = ();
-	for my $lc (@lcs) {
+	for my $lc (grep { $languages->{$_}{active} } keys %$languages) {
 		my $adding = $lc eq 'eng' ? '' : "_$lc";
 		open($files{$lc}, '>::utf8', "$cfg->{EE}{tmpDir}/$cfg->{EE}{addonBasename}$adding.jm") or $m->error("Could not open file for $lc! ($! for $cfg->{EE}{tmpDir}/$cfg->{EE}{addonBasename}$adding.jm)");
 		$files{$lc} or $m->error("could not open file $lc");
-		print {$files{$lc}} "Na'vi\t$lc\tPoS\n";
+		print {$files{$lc}} "Na'vi\t$languages->{$lc}{nat}\tPoS\n";
 	}
 	
 	# Iterate through @words
 	for my $word (@words) {
 		# For each language...
-		for my $lc (@lcs) {
+		for my $lc (grep { $languages->{$_}{active} } keys %$languages) {
 			$files{$lc} && defined $files{$lc} or $m->error("filehandle for $lc closed!");
 			next if !$word->{$lc};
 			my $type = $word->{"type$lc"} ? $word->{"type$lc"} : $word->{type};
@@ -54,7 +54,7 @@ sub create {
 		}
 	}
 	
-	for my $lc (@lcs) {
+	for my $lc (grep { $languages->{$_}{active} } keys %$languages) {
 		close $files{$lc};
 		# FTP
 		my $adding = $lc eq 'eng' ? '' : "_$lc";

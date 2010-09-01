@@ -32,7 +32,7 @@ sub create {
 	my @lcs = @{$params{languages}};
 	
 	# Clean up
-	`rm -f $cfg->{EE}{addonBasename}/*.tsv`;
+	`rm -f $cfg->{EE}{tmpDir}/*.tsv`;
 	
 	# Open file handles to avoid iterating X times through @words
 	my %files = ();

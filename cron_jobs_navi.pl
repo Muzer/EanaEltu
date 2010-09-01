@@ -38,7 +38,7 @@ my ($m, $cfg, $lng) = MwfMain->newShell(forumId => $forumId);
 # Get all our words
 my $yn = YellNavi->new(file => $cfg->{EE}{demonFile}, key => $cfg->{EE}{demonKey});
 if (!$yn->connect) {
-	die('Could not connect to demon.');
+	$m->error('Could not connect to demon.');
 }
 
 $yn->askRefresh;
@@ -47,15 +47,19 @@ my @languages = grep { $languages->{$_}{active} } keys %$languages;
 
 my $data = $yn->askAllData;
 if (!$data || $@ || $!) {
-	die("Error asking demon for all data.");
+	$m->error("Error asking demon for all data.");
 }
 
 # Open FTP.
-my $ftp = Net::FTP->new($cfg->{EE}{ftp}{server}, Timeout => 30, Passive => 1) or $m->error("could not connect to ftp");
+my $ftp = Net::FTP->new($cfg->{EE}{ftp}{server}, Timeout => 120, Passive => 1) or $m->error("could not connect to ftp");
 $ftp->login($cfg->{EE}{ftp}{user}, $cfg->{EE}{ftp}{password}) or $m->error("could not ftp login");
 $ftp->binary() or $m->error("could not binary");
 $ftp->cwd($cfg->{EE}{ftp}{dir}) or $m->error("could not cwd");
 
-$m->callPlugin("${_}::create", words => $data, ftp => $ftp, languages => \@languages) for @{$cfg->{EE}{addons}};
+for (@{$cfg->{EE}{addons}}) {
+	print "Calling $_...\n";
+	$m->callPlugin("${_}::create", words => $data, ftp => $ftp, languages => \@languages, advLanguages => $languages) ;
+	print "Called.\n";
+}
 
 $m->logAction(1, 'navicj', 'exec');
