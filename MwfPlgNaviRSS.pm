@@ -43,17 +43,20 @@ sub create {
   open($files{$number}, '>::utf8', "$cfg->{EE}{tmpDir}/NaviUpdates_${number}.rss") or $m->error("Could not open file! ($! for $cfg->{EE}{tmpDir}/NaviUpdates_${number}.rss)");
   $files{$number} or $m->error("could not open file");
 
-
+	require POSIX;
+	my $oldLocale = POSIX::setlocale(POSIX::LC_TIME(), 'C');
+	my $buildDate = $m->formatTime($m->{now}, 0, "%a, %d %b %Y %H:%M:%S GMT");
+	my $pubDate = $m->formatTime($sorted[0]->{editTime}, "%a, %d %b %Y %H:%M:%S GMT");
   print {$files{$number}} <<EORSS;
-<?xml version="1.0"?>
-<rss version="2.0">
+<?xml version='1.0' encoding='utf-8'?>
+<rss version='2.0'>\n",
   <channel>
     <title>Na'vi dictionary updates</title>
     <link>http://forum.learnnavi.org/intermediate/my-dictionary/</link>
     <description>List of Na'vi words recently modified.</description>
     <language>en-gb</language>
-    <pubDate>$time{"Day, dd Mon yyyy hh:mm:ss +0100", ${sorted[0]}->{"editTime"}}</pubDate>
-    <lastBuildDate>$time{"Day, dd Mon yyyy hh:mm:ss +0100"}</lastBuildDate>
+    <pubDate>$pubDate</pubDate>
+    <lastBuildDate>$buildDate</lastBuildDate>
     <docs>http://www.rssboard.org/rss-specification</docs>
     <generator>RSS generator for Eana Eltu 1.0</generator>
     <copyright>Eana Eltu RSS data by Tobias Jaeggi (Tuiq, tuiq\@clonk2c.ch), Richard Littauer (Taronyu, richard\@learnnavi.org) and others is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License ( http://creativecommons.org/licenses/by-nc-sa/3.0/ ). The full license text is available at http://creativecommons.org/licenses/by-nc-sa/3.0/legalcode .</copyright>
@@ -68,7 +71,7 @@ EORSS
 				print {$files{$number}} 
 					"<item>\n",
 					"<title><![CDATA[$word->{nav}]]></title>\n",
-					"<pubDate>", $time{"Day, dd Mon yyyy hh:mm:ss +0100", $word->{editTime}}, "</pubDate>\n",
+					"<pubDate>", $m->formatTime($word->{editTime}, 0, "%a, %d %b %Y %H:%M:%S GMT"), "</pubDate>\n",
 					"<description><![CDATA[Na'vi: $word->{nav}<br />IPA: $word->{ipa}<br />Part of speech: $word->{type}<br />";
 				
 				# And now for each language...
@@ -83,6 +86,8 @@ EORSS
 		}
 		$done++;
 	}
+	
+	POSIX::setlocale(POSIX::LC_TIME(), $oldLocale);
 	
 	for my $number (@rssmessages) {
 		print {$files{$number}} "</channel>\n</rss>\n";
