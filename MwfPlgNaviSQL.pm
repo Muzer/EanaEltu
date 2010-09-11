@@ -47,7 +47,7 @@ sub create {
 -- localized table.
 CREATE TABLE IF NOT EXISTS `localizedWords` (`id` char(40) NOT NULL,`languageCode` char(5) NOT NULL,`localized` text NULL,`partOfSpeech` varchar(100) NULL, UNIQUE KEY `idlc` (`id`,`languageCode`)) DEFAULT CHARSET=utf8;
 -- meta table.
-CREATE TABLE IF NOT EXISTS `metaWords` (`id` char(40) NOT NULL AUTO_INCREMENT,`navi` varchar(100) NOT NULL,`ipa` varchar(100) NOT NULL,`infixes` varchar(100) NULL,`partOfSpeech` varchar(100) NOT NULL,PRIMARY KEY (`id`)) DEFAULT CHARSET=utf8;
+CREATE TABLE IF NOT EXISTS `metaWords` (`id` char(40) NOT NULL,`navi` varchar(100) NOT NULL,`ipa` varchar(100) NOT NULL,`infixes` varchar(100) NULL,`partOfSpeech` varchar(100) NOT NULL,PRIMARY KEY (`id`)) DEFAULT CHARSET=utf8;
 -- TRUNCATE ACTION!
 TRUNCATE TABLE `metaWords`;
 TRUNCATE TABLE `localizedWords`;
