@@ -8,7 +8,6 @@ use strict;
 use Data::Dumper;
 use DBI;
 use Encode;
-use Digest::SHA;
 
 package SpeakNavi;
 
@@ -501,7 +500,7 @@ sub refreshMySQLDatabase {
 		$word{snav} = undef;
 		$word{vnav} = undef;
 		$word{composed} = undef;
-		$word{id} = Digest::SHA::sha1_hex("$r->{id}-0");
+		$word{id} = $r->{id} << 2;
 		
 		$ssth->execute($r->{id});
 		# Go get these wussies.
@@ -522,7 +521,7 @@ sub refreshMySQLDatabase {
 			$word{qnav} = quotemeta($word{nav});
 			my %w = %word;
 			push @words, \%w;
-			$word{id} = Digest::SHA::sha1_hex("$r->{id}-1");
+			$word{id}++;
 		  $word{nav} = $pr.$po;
 			$word{qnav} = quotemeta($word{nav});
 		}

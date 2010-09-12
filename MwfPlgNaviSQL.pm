@@ -45,9 +45,9 @@ sub create {
 -- The full license text is available at http://creativecommons.org/licenses/by-nc-sa/3.0/legalcode .
 
 -- localized table.
-CREATE TABLE IF NOT EXISTS `localizedWords` (`id` char(40) NOT NULL,`languageCode` char(5) NOT NULL,`localized` text NULL,`partOfSpeech` varchar(100) NULL, UNIQUE KEY `idlc` (`id`,`languageCode`)) DEFAULT CHARSET=utf8;
+CREATE TABLE IF NOT EXISTS `localizedWords` (`id` int(11) NOT NULL,`languageCode` char(5) NOT NULL,`localized` text NULL,`partOfSpeech` varchar(100) NULL, UNIQUE KEY `idlc` (`id`,`languageCode`)) DEFAULT CHARSET=utf8;
 -- meta table.
-CREATE TABLE IF NOT EXISTS `metaWords` (`id` char(40) NOT NULL,`navi` varchar(100) NOT NULL,`ipa` varchar(100) NOT NULL,`infixes` varchar(100) NULL,`partOfSpeech` varchar(100) NOT NULL,PRIMARY KEY (`id`)) DEFAULT CHARSET=utf8;
+CREATE TABLE IF NOT EXISTS `metaWords` (`id` int(11) NOT NULL, `navi` varchar(100) NOT NULL,`ipa` varchar(100) NOT NULL,`infixes` varchar(100) NULL,`partOfSpeech` varchar(100) NOT NULL,PRIMARY KEY (`id`)) DEFAULT CHARSET=utf8;
 -- TRUNCATE ACTION!
 TRUNCATE TABLE `metaWords`;
 TRUNCATE TABLE `localizedWords`;
@@ -63,8 +63,8 @@ EOSQL
       my $type = $word->{"type$lc"} ? $word->{"type$lc"} : $word->{type};
       print $file "INSERT INTO `localizedWords` (`id`,`languageCode`,`localized`,`partOfSpeech`) VALUES ('", $word->{id}, "','", $lc, "',", $m->{dbh}->quote($word->{$lc}), ",", $m->{dbh}->quote($type), ");";
 		}
-		# We show mercy to poor editors.
-		print $file "\n";
+		# We don't show mercy to poor editors.
+		#~ print $file "\n";
 	}
 
   close $file;
